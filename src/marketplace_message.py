@@ -22,18 +22,18 @@ def send_message(browser, listing_url, message):
             return True
         except selenium.common.exceptions.NoSuchElementException:
             pass
-
+        
         for element in browser.find_elements(By.XPATH, "//textarea"):
             try:
                 element.clear()
                 element.send_keys(message)
-                browser.save_full_page_screenshot(f"message-{datetime.datetime.now().isoformat()}.png")
             except selenium.common.exceptions.ElementNotInteractableException:
-                continue
+                logger.debug("⚠️ Invalid textare item")
 
         try:
             send_button = browser.find_element(By.XPATH, "//span[text()='Send']")
             browser.execute_script("arguments[0].scrollIntoView(true); arguments[0].click();", send_button)
+            browser.save_full_page_screenshot(f"message-{datetime.datetime.now().isoformat()}.png")
             break
         except selenium.common.exceptions.NoSuchElementException:
             logger.info("🧐 `Send` button is not located")
