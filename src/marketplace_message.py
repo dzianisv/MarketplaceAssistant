@@ -11,7 +11,7 @@ def send_message(browser, listing_url, message):
         EC.presence_of_element_located((By.XPATH, "//textarea[contains(text(), 'this available?')]"))
     )
 
-    for element in browser.find_elements((By.XPATH, "//textarea[contains(text(), 'this available?')]")):
+    for element in browser.find_elements(By.XPATH, "//textarea[contains(text(), 'this available?')]"):
         try:
             element.clear()  # Clear the default text.
             element.send_keys(message)

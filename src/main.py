@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import selenium
+import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -12,13 +14,11 @@ import config
 
 logger = config.get_logger(__name__)
 
-def login_to_facebook(browser, email, password):
-    browser.get('https://www.facebook.com/')
-    if not utils.load_coockies(browser):
-        logger.error("failed to load cookies...")
 
+def login_to_facebook(browser, email, password):
+    browser.get("https://www.facebook.com/")
     try:
-    # Input email
+        # Input email
         email_element = browser.find_element(By.CSS_SELECTOR, 'input[name="email"]')
         email_element.send_keys(email)
 
@@ -27,35 +27,41 @@ def login_to_facebook(browser, email, password):
         password_element.send_keys(password)
         password_element.send_keys(Keys.ENTER)
     except selenium.common.exceptions.NoSuchElementException:
-        logger.info("`email` and `pass` fields are not found, looks like we are logged in...")
-    
+        logger.info(
+            "`email` and `pass` fields are not found, looks like we are logged in..."
+        )
+
     logger.debug("waiting for `Marketplace` menu item")
     utils.waitFor(browser, (By.XPATH, "//span[text()='Marketplace']"))
-    logger.info("saving cookies...")
-    utils.save_cookies(browser)
+
 
 def main():
-    # Initialize the browser
-    browser = webdriver.Firefox()
+    # Initialize the browse
+    profile_path = "FacebookAssistantState"
+    options = selenium.webdriver.firefox.options.Options()
+    options.add_argument("--profile")
+    options.add_argument(profile_path)
+    browser = webdriver.Firefox(options=options)
+    
+    try:
+        # Login to Facebook
+        login_to_facebook(browser, config.EMAIL, config.PASSWORD)
 
-    # Login to Facebook
-    login_to_facebook(browser, config.EMAIL, config.PASSWORD)
+        # Parameters for searching and messaging
+        city = "miami"
+        price_limit = 1200
 
-    # Parameters for searching and messaging
-    city = "miami"
-    price_limit = 1200
+        # Find listings and send messages
+        listings = find_listings(browser, price_limit, city)
+        logger.info("Found %d listings", len(listings))
 
+        for listing in listings:
+            logger.info("Sending message to %s", listing)
+            send_message(browser, listing, config.MESSAGE)
+    finally:
+        # Quit the browser after completing the tasks
+        browser.quit()
 
-    # Find listings and send messages
-    listings = find_listings(browser, price_limit, city)
-    logger.info("Found %d listings", len(listings))
-
-    for listing in listings:
-        logger.info("Sending message to %s", listing)
-        send_message(browser, listing, config.MESSAGE)
-
-    # Quit the browser after completing the tasks
-    # browser.quit()
 
 if __name__ == "__main__":
     main()
