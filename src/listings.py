@@ -4,7 +4,10 @@ from selenium.webdriver.common.by import By
 import re
 from time import sleep
 import utils
+import config
 
+
+logger = config.get_logger(__name__)
 
 def find_listings(browser, price_limit, city):
     # base_url = "https://www.facebook.com/marketplace"
@@ -28,15 +31,21 @@ def find_listings(browser, price_limit, city):
             try:
                 span_element = a_element.find_element(By.TAG_NAME, "span")
                 price_text = span_element.text
+                listing_link = a_element.get_attribute("href")
+
                 if re.search(price_pattern, price_text):
-                    # price could contain a discount price, in this case it will look like: '550\n600'
-                    price = float(price_text.replace("$", "").replace(",", "").split('\n')[0])
+                    # price could contain a discount price, in this case it will look like: '$550\n$600'
+                    price_str = price_text.replace("$", "").replace(",", "").split('\n')[0]
+
+                    if price_str == 'Free':
+                        price = 0.0
+                    else:
+                        price = float(price_str)
 
                     if price <= price_limit:
-                        listing_link = a_element.get_attribute("href")
                         affordable_listings.append(listing_link)
             except Exception as e:
-                print(f"Error processing a listing: {e}")
+                logger.error(f"Error processing a listing `{listing_link}: {e}")
             
         try:
             browser.find_element(By.XPATH, "//*[contains(text(), 'Results from outside your search')]")
