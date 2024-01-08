@@ -23,7 +23,7 @@ def send_message(browser, listing_url, message):
         except selenium.common.exceptions.NoSuchElementException:
             pass
         
-        for element in browser.find_elements(By.XPATH, "//textarea"):
+        for element in browser.find_elements(By.XPATH, "//textarea[@placeholder='Send a private message…']"):
             try:
                 element.clear()
                 element.send_keys(message)
