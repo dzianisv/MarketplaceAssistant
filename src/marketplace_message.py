@@ -1,5 +1,6 @@
 import selenium
 from selenium import webdriver
+from selenium.webdriver import Keys, ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -22,13 +23,13 @@ def send_message(browser, listing_url, message):
             return True
         except selenium.common.exceptions.NoSuchElementException:
             pass
-        
+
         for element in browser.find_elements(By.XPATH, "//textarea[@placeholder='Send a private message…']"):
             try:
                 element.clear()
-                element.send_keys(message)
+                ActionChains(browser).click(element).send_keys(message).perform()
             except selenium.common.exceptions.ElementNotInteractableException:
-                logger.debug("⚠️ Invalid textare item")
+                logger.debug("⚠️ Invalid textarea item")
 
         try:
             send_button = browser.find_element(By.XPATH, "//span[text()='Send']")
