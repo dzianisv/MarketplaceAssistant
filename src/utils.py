@@ -23,3 +23,10 @@ def load_coockies(driver):
         for cookie in cookies:
             driver.add_cookie(cookie)
             return True
+
+def waitPageReady(driver, timeout=10):
+    wait = WebDriverWait(driver, timeout)
+    wait.until(lambda d: d.execute_script('return document.readyState') == 'complete')
+
+def wait(driver, timeout=10):
+    driver.implicitly_wait(timeout)

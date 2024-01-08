@@ -42,7 +42,7 @@ def main():
     options.add_argument("--profile")
     options.add_argument(profile_path)
     browser = webdriver.Firefox(options=options)
-    
+
     try:
         # Login to Facebook
         login_to_facebook(browser, config.EMAIL, config.PASSWORD)
@@ -56,11 +56,11 @@ def main():
         logger.info("Found %d listings", len(listings))
 
         for listing in listings:
-            logger.info("Sending message to %s", listing)
             send_message(browser, listing, config.MESSAGE)
     finally:
         # Quit the browser after completing the tasks
-        browser.quit()
+        # browser.quit()
+        pass
 
 
 if __name__ == "__main__":
