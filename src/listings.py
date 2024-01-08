@@ -29,6 +29,8 @@ def find_listings(browser, price_limit, city):
     affordable_listings = set()
     recent_len = -1
 
+    browser.find_elemnt(By.XPATH, "//input[@label='Maxium Range']").send_keys(str(price_limit))
+
     for i in range(100):
         if endOfListings(browser):
             break
