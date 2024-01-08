@@ -10,8 +10,13 @@ def send_message(browser, listing_url, message):
     textarea = WebDriverWait(browser, 30).until(
         EC.presence_of_element_located((By.XPATH, "//textarea[contains(text(), 'this available?')]"))
     )
-    textarea.clear()  # Clear the default text.
-    textarea.send_keys(message)
+
+    for element in browser.find_elements((By.XPATH, "//textarea[contains(text(), 'this available?')]")):
+        try:
+            element.clear()  # Clear the default text.
+            element.send_keys(message)
+        except selenium.common.exceptions.ElementNotInteractableException as e:
+            pass
 
     # Find the Send button and click it.
     send_button = browser.find_element(By.XPATH, "//span[text()='Send']")
