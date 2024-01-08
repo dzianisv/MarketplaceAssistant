@@ -42,7 +42,12 @@ def main():
     options.add_argument("--profile")
     options.add_argument(profile_path)
     browser = webdriver.Firefox(options=options)
+    find_and_message(browser)
 
+def test(browser):
+    send_message(browser, 'https://www.facebook.com/marketplace/item/1500666784029285', config.MESSAGE)
+
+def find_and_message(browser):
     try:
         # Login to Facebook
         login_to_facebook(browser, config.EMAIL, config.PASSWORD)
@@ -68,3 +73,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

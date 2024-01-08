@@ -7,9 +7,11 @@ import utils
 
 
 def find_listings(browser, price_limit, city):
-    base_url = "https://www.facebook.com/marketplace"
-    city_url = f"{base_url}/{city}/search?query=rentals&exact=false"
-    browser.get(city_url)
+    # base_url = "https://www.facebook.com/marketplace"
+    # url = f"{base_url}/{city}/search?query=rentals&exact=false"
+
+    url = "https://www.facebook.com/marketplace/category/propertyrentals"
+    browser.get(url)
     sleep(5)
 
     # Regex pattern to identify price-like strings
@@ -19,7 +21,7 @@ def find_listings(browser, price_limit, city):
 
     while len(affordable_listings) > recent_len:
         recent_len = len(affordable_listings)
-        # Find all <a> elements containing a <span> that looks like a price
+        # Find all <a> elements containing a <span> that looks like a price 
         a_elements = browser.find_elements(By.XPATH, "//a[.//span]")
 
         for a_element in a_elements:
@@ -27,7 +29,8 @@ def find_listings(browser, price_limit, city):
                 span_element = a_element.find_element(By.TAG_NAME, "span")
                 price_text = span_element.text
                 if re.search(price_pattern, price_text):
-                    price = float(price_text.replace("$", "").replace(",", ""))
+                    # price could contain a discount price, in this case it will look like: '550\n600'
+                    price = float(price_text.replace("$", "").replace(",", "").split('\n')[0])
 
                     if price <= price_limit:
                         listing_link = a_element.get_attribute("href")
