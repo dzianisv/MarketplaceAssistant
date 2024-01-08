@@ -1,6 +1,7 @@
 import selenium
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 import re
 from time import sleep
 import utils
@@ -24,14 +25,21 @@ def find_listings(browser, price_limit, city):
     url = "https://www.facebook.com/marketplace/category/propertyrentals"
     browser.get(url)
 
+    min_input = utils.waitFor(browser, (By.XPATH, "//input[@placeholder='Min']"))
+    min_input.send_keys('500')
+    min_input.send_keys(Keys.ENTER)
+
+    max_input = utils.waitFor(browser, (By.XPATH, "//input[@placeholder='Max']"))
+    max_input.send_keys(str(price_limit))
+    max_input.send_keys(Keys.ENTER)
+
     # Regex pattern to identify price-like strings
     price_pattern = r"\$\d{1,3}(,\d{3})*(\.\d{2})?"
     affordable_listings = set()
     recent_len = -1
 
-    browser.find_elemnt(By.XPATH, "//input[@label='Maxium Range']").send_keys(str(price_limit))
 
-    for i in range(100):
+    for i in range(30):
         if endOfListings(browser):
             break
         logger.debug("Scrolling to bottom of page, iteration %d", i)
