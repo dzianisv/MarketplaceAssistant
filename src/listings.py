@@ -15,7 +15,7 @@ def find_listings(browser, price_limit, city):
 
     url = "https://www.facebook.com/marketplace/category/propertyrentals"
     browser.get(url)
-    sleep(5)
+    sleep(1)
 
     # Regex pattern to identify price-like strings
     price_pattern = r"\$\d{1,3}(,\d{3})*(\.\d{2})?"
@@ -52,8 +52,9 @@ def find_listings(browser, price_limit, city):
             break
         except selenium.common.exceptions.NoSuchElementException:
             pass
-
+        
+        logger.debug("Scrolling to the bottom. Waiting for 3s...")
         utils.scrollToBottom(browser)
-        utils.wait(browser, 10)
+        utils.wait(browser, 3)
 
     return affordable_listings
