@@ -7,12 +7,32 @@ from time import sleep
 from listings import find_listings
 from marketplace_message import send_message
 
-
+import pickle
+import os
 import config
 
 logger = config.get_logger(__name__)
 
+
+COOKIES_FILE="fbAssistantCookies.pkl"
+
+def save_cookies(driver):
+    with open(COOKIES_FILE, "wb") as fd:
+        pickle.dump(driver.get_cookies(), fd)
+
+def load_coockies(driver):
+    if not os.path.exists(COOKIES_FILE):
+        return False
+
+    with open(COOKIES_FILE, "rb") as fd:
+        cookies = pickle.load(fd)
+        for cookie in cookies:
+            driver.add_cookie(cookie)
+            return True
+
 def login_to_facebook(browser, email, password):
+    load_coockies(browser)
+
     browser.get('https://www.facebook.com/')
 
     # Input email
@@ -26,23 +46,8 @@ def login_to_facebook(browser, email, password):
 
     # Give some time for the login to process
     sleep(5)
+    save_cookies(browser)
 
-
-def send_message(browser, listing_url, message_text):
-    browser.get(listing_url)
-
-    # A wait time for the page to load
-    sleep(5)
-
-    message_button = browser.find_element(By.CSS_SELECTOR, '.message-button-selector')
-    message_button.click()
-
-    # A wait time for the message box to load
-    sleep(5)
-
-    message_input = browser.find_element(By.CSS_SELECTOR, '.message-input-selector')
-    message_input.send_keys(message_text)
-    message_input.send_keys(Keys.ENTER)
 
 def main():
     # Initialize the browser
@@ -52,10 +57,9 @@ def main():
     login_to_facebook(browser, config.EMAIL, config.PASSWORD)
 
     # Parameters for searching and messaging
-    city = "seattle"
+    city = "miami"
     price_limit = 1200
-    with open("message.txt", "r") as f:
-        message_text = f.read()
+
 
     # Find listings and send messages
     listings = find_listings(browser, price_limit, city)
@@ -63,7 +67,7 @@ def main():
 
     for listing in listings:
         logger.info("Sending message to %s", listing)
-        send_message(browser, listing, message_text)
+        send_message(browser, listing, config.MESSAGE)
 
     # Quit the browser after completing the tasks
     # browser.quit()

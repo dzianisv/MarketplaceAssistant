@@ -7,8 +7,8 @@ def send_message(browser, listing_url, message):
     browser.get(listing_url)
 
     # Wait until the "Hi, is this available?" textarea is present and send the message.
-    textarea = WebDriverWait(browser, 10).until(
-        EC.presence_of_element_located((By.XPATH, "//textarea[contains(text(), 'Hi, is this available?')]"))
+    textarea = WebDriverWait(browser, 30).until(
+        EC.presence_of_element_located((By.XPATH, "//textarea[contains(text(), 'this available?')]"))
     )
     textarea.clear()  # Clear the default text.
     textarea.send_keys(message)
