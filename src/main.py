@@ -48,7 +48,8 @@ def main():
         login_to_facebook(browser, config.EMAIL, config.PASSWORD)
 
         # Parameters for searching and messaging
-        city = "miami"
+        # seattle, miami, sanjuan
+        city = 'sanjuan'
         price_limit = 1200
 
         # Find listings and send messages
@@ -56,7 +57,9 @@ def main():
         logger.info("Found %d listings", len(listings))
 
         for listing in listings:
-            send_message(browser, listing, config.MESSAGE)
+            if not send_message(browser, listing, config.MESSAGE):
+                logger.error("Failed to send a message")
+                break
     finally:
         # Quit the browser after completing the tasks
         # browser.quit()

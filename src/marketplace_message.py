@@ -5,38 +5,50 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import utils
 import config
+from time import sleep
+import datetime
 
 logger = config.get_logger(__name__)
 
 def send_message(browser, listing_url, message):
     browser.get(listing_url)
     utils.waitPageReady(browser)
-    logger.info("Opened ad %s", listing_url)
+    logger.info("Listing: %s", listing_url)
 
-    while True:
+    for _ in range(3):
         try:
             browser.find_element(By.XPATH, "//span[text()='Message Again']")
+            logger.info("✉️ `Message Again` button is located. It means we already sent message to the owner of this ad")
             return True
         except selenium.common.exceptions.NoSuchElementException:
-            logger.debug("✉️ `Message Again` button is located. It means we already sent message to the owner of this ad")
+            pass
 
-        for element in browser.find_elements(By.XPATH, "//textarea[contains(text(), 'this available?')]"):
+        for element in browser.find_elements(By.XPATH, "//textarea"):
             try:
-                element.clear()  # Clear the default text.
+                element.clear()
                 element.send_keys(message)
-            except selenium.common.exceptions.ElementNotInteractableException as e:
+                browser.save_full_page_screenshot(f"message-{datetime.datetime.now().isoformat()}.png")
+            except selenium.common.exceptions.ElementNotInteractableException:
                 continue
-        
+
         try:
-            # Find the Send button and click it.
             send_button = browser.find_element(By.XPATH, "//span[text()='Send']")
-            # Click the element with JavaScript
             browser.execute_script("arguments[0].scrollIntoView(true); arguments[0].click();", send_button)
             break
         except selenium.common.exceptions.NoSuchElementException:
-            logger.debug("🧐 `Send` button is not located")
+            logger.info("🧐 `Send` button is not located")
             continue
+    else:
+        logger.warning("⚠️ Failed to locate `Send` or `Message Again` buttons")
+        return False
 
-    utils.wait(driver,60)
     logger.info("📤 Message sent")
+    
+    try:
+        browser.find_element(By.XPATH, "//*[contains(text(), 'Something goes wrong')]")
+        logger.warning("Failed to sena a message, probably we are blocked")
+        return False
+    except selenium.common.exceptions.NoSuchElementException:
+        pass
 
+    return True

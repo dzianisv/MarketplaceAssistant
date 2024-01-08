@@ -30,3 +30,6 @@ def waitPageReady(driver, timeout=10):
 
 def wait(driver, timeout=10):
     driver.implicitly_wait(timeout)
+
+def scrollToBottom(driver):
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
