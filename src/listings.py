@@ -25,11 +25,11 @@ def find_listings(browser, price_limit, city):
     url = "https://www.facebook.com/marketplace/category/propertyrentals"
     browser.get(url)
 
-    min_input = utils.waitFor(browser, (By.XPATH, "//input[@placeholder='Min']"))
+    min_input = utils.wait_for(browser, (By.XPATH, "//input[@placeholder='Min']"))
     min_input.send_keys('500')
     min_input.send_keys(Keys.ENTER)
 
-    max_input = utils.waitFor(browser, (By.XPATH, "//input[@placeholder='Max']"))
+    max_input = utils.wait_for(browser, (By.XPATH, "//input[@placeholder='Max']"))
     max_input.send_keys(str(price_limit))
     max_input.send_keys(Keys.ENTER)
 
@@ -39,7 +39,7 @@ def find_listings(browser, price_limit, city):
     recent_len = -1
 
 
-    for i in range(1):
+    for i in range(30):
         if endOfListings(browser):
             break
         logger.debug("Scrolling to bottom of page, iteration %d", i)

@@ -1,14 +1,22 @@
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import selenium
 import pickle
 import os
 
 COOKIES_FILE="fbAssistantCookies.pkl"
 
-def waitFor(browser, selector, timeout_s=30):
-    return WebDriverWait(browser, 30).until(
-        EC.presence_of_element_located(selector)
-    )
+def wait_for(browser, *args):
+    def _f(driver):
+        for selector in args:
+            try:
+                element = driver.find_element(*selector)
+                return element
+            except selenium.common.exceptions.NoSuchElementException:
+                pass
+        return None
+
+    return WebDriverWait(browser, 30).until(_f)
 
 def save_cookies(driver):
     with open(COOKIES_FILE, "wb") as fd:
