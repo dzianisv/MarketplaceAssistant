@@ -25,25 +25,27 @@ def send_message(browser, listing_url, message):
             pass
         
         try:
-            # send_message_button = browser.find_element(By.XPATH, "//span[text()='Message']")
-            # ActionChains(browser).click(send_message_button).perform()
+            send_message_button = browser.find_element(By.XPATH, "//span[text()='Message']")
+            ActionChains(browser).click(send_message_button).perform()
 
-            for element in browser.find_elements(By.XPATH, "//textarea"):
+            sleep(3)
+            # <textarea dir="ltr" aria-invalid="false" id=":re:" class="x1i10hfl xggy1nq x1s07b3s xjbqb8w x76ihet xwmqs3e x112ta8 xxxdfa6 x9f619 xzsf02u x78zum5 x1jchvi3 x1fcty0u x132q4wb xyorhqc xaqh0s9 x1a2a7pz x6ikm8r x10wlt62 x1pi30zi x1swvt13 xtt52l0 xh8yej3" rows="5" style="overflow-y: hidden;"></textarea>
+            for element in browser.find_elements(By.XPATH, "//span[contains(text(), 'Please type your message to the seller')]/following-sibling::textarea"):
                 try:
                     element.clear()
                     ActionChains(browser).click(element).send_keys(message).perform()
                 except selenium.common.exceptions.ElementNotInteractableException:
                     continue
         
-            for element in browser.find_elements(By.XPATH,  "//span[text()='Send']"):
+            for element in browser.find_elements(By.XPATH, "//span[text()='Send message']"):
                 try:
                     ActionChains(browser).click(element).perform()
                 except selenium.common.exceptions.MoveTargetOutOfBoundsException:
                     continue
                 
-            break
-
+            sleep(10)
             browser.save_full_page_screenshot(f"message-{datetime.datetime.now().isoformat()}.png")
+            break
         except selenium.common.exceptions.NoSuchElementException as e:
             logger.warning(f"🧐 Failed to locate message dialog controls: {e}")
             continue
@@ -51,7 +53,6 @@ def send_message(browser, listing_url, message):
         return False
 
     logger.info("📤 Message sent")
-    
     try:
         browser.find_element(By.XPATH, "//*[contains(text(), 'Something goes wrong')]")
         logger.warning("Failed to sena a message, probably we are blocked")

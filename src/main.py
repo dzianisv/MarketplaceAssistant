@@ -42,10 +42,10 @@ def main():
     options.add_argument("--profile")
     options.add_argument(profile_path)
     browser = webdriver.Firefox(options=options)
-    find_and_message(browser)
+    test(browser)
 
 def test(browser):
-    send_message(browser, 'https://www.facebook.com/marketplace/item/1500666784029285', config.MESSAGE)
+    send_message(browser, 'https://www.facebook.com/marketplace/item/1049990203002744/?ref=category_feed&referral_code=undefined&referral_story_type=listing&tracking=%7B%22qid%22%3A%22-2753636296707797484%22%2C%22mf_story_key%22%3A%226998066960287720%22%2C%22commerce_rank_obj%22%3A%22%7B%5C%22target_id%5C%22%3A6998066960287720%2C%5C%22target_type%5C%22%3A0%2C%5C%22primary_position%5C%22%3A28%2C%5C%22ranking_signature%5C%22%3A7594008407766888175%2C%5C%22commerce_channel%5C%22%3A504%2C%5C%22value%5C%22%3A4.9311299286001e-5%2C%5C%22candidate_retrieval_source_map%5C%22%3A%7B%5C%226998066960287720%5C%22%3A204%7D%7D%22%2C%22ftmd_400706%22%3A%22111112l%22%7D', config.MESSAGE)
 
 def find_and_message(browser):
     try:

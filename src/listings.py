@@ -39,7 +39,7 @@ def find_listings(browser, price_limit, city):
     recent_len = -1
 
 
-    for i in range(30):
+    for i in range(1):
         if endOfListings(browser):
             break
         logger.debug("Scrolling to bottom of page, iteration %d", i)
