@@ -22,7 +22,7 @@ def send_message(browser, listing_url, message):
         logger.info("✉️ `Message Again` button is located. It means we already sent message to the owner of this ad")
         return True
     else:
-        element.click()
+        ActionChains(browser).move_to_element(element).click().perform()
     
     # type in message
     element = WebDriverWait(browser, 20).until(
