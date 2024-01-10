@@ -57,6 +57,14 @@ def _send_message(browser, listing_url, message):
     except selenium.common.exceptions.NoSuchElementException:
         pass
 
+    try: 
+        browser.find_element(By.XPATH, "//*[contains(text(), \"You've Reached Your Limit\")]")
+        logger.warning("[%s] Failed to sena a message, \"You've Reached Your Limit\"", listing_url)
+        return False
+    except selenium.common.exceptions.NoSuchElementException:
+        pass
+    
+
     return True
 
 def send_message(browser, listing_url, message):
