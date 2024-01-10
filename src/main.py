@@ -12,6 +12,7 @@ import utils
 import pickle
 import config
 import random
+import enum
 
 logger = config.get_logger(__name__)
 
@@ -35,14 +36,26 @@ def login_to_facebook(browser, email, password):
     logger.debug("waiting for `Marketplace` menu item")
     utils.wait_for(browser, (By.XPATH, "//span[text()='Marketplace']"))
 
+class Browsers(enum.Enum):
+    FIREFOX = 0
+    CHROME = 2
 
 def main():
     # Initialize the browse
-    profile_path = "FacebookAssistantState"
-    options = selenium.webdriver.firefox.options.Options()
-    options.add_argument("--profile")
-    options.add_argument(profile_path)
-    browser = webdriver.Firefox(options=options)
+    browser_type = Browsers.CHROME
+    profile_path = ".FacebookAssistantState." + browser_type.name
+    
+
+    if browser_type == Browsers.FIREFOX:
+        options = selenium.webdriver.firefox.options.Options()
+        options.add_argument("--profile")
+        options.add_argument(profile_path)
+        browser = webdriver.Firefox(options=options)
+    else:
+        options = selenium.webdriver.chrome.options.Options()
+        options.add_argument("--user-data-dir=" + profile_path)
+        browser = webdriver.Chrome(options=options)
+        
     find_and_message(browser)
 
 
@@ -61,15 +74,19 @@ def find_and_message(browser):
 
         # Parameters for searching and messaging
         # seattle, miami, sanjuan
-        price_limit = 1200
+        prices = (800, 1500)
         if os.path.exists("listings.cache.pkl"):
             listings = pickle.load(open("listings.cache.pkl", "rb"))
         else:
-            listings = find_listings(browser, price_limit, "")
+            listings = find_listings(browser, prices, "")
             pickle.dump(listings, open("listings.cache.pkl", "wb"))
 
         timeouts = 0
         for i in range(len(listings)):
+            if i > config.MESSAGES_LIMIT:
+                logger.info("messages quota is reached")
+                break
+
             listing = listings[i]
             
             for retry_i in range(3):

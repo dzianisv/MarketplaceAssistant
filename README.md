@@ -1,3 +1,11 @@
+## Requirements
+```
+brew install python
+brew install --cask chromedriver
+python -m pip install pipenv
+pipenv install -r requirements.txt
+```
+
 ## Preparation
 
 ```

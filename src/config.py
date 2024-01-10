@@ -14,3 +14,4 @@ with open("message.txt", "r", encoding='utf8') as m:
 
 EMAIL = os.environ.get('EMAIL')
 PASSWORD = os.environ.get('PASSWORD')
+MESSAGES_LIMIT=50

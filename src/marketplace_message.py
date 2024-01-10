@@ -41,19 +41,18 @@ def _send_message(browser, listing_url, message):
     
     # wait for a message delivery
     sleep(10)
-    browser.save_full_page_screenshot(f"message-{datetime.datetime.now().isoformat()}.png")
     logger.info("[%s] 📤 Message sent", listing_url)
 
     try:
         browser.find_element(By.XPATH, "//*[contains(text(), 'Something goes wrong')]")
-        logger.warning("[%s] Failed to sena a message, probably we are blocked", listing_url)
+        logger.warning('[%s] Failed to sena a message, "Something goes wrong..."', listing_url)
         return False
     except selenium.common.exceptions.NoSuchElementException:
         pass
 
     try: 
         browser.find_element(By.XPATH, "//*[contains(text(), 'Your account is restricted right now')]")
-        logger.warning("[%s] Failed to sena a message, account is restricted", listing_url)
+        logger.warning('[%s] Failed to sena a message, "Your account is restricted right now"', listing_url)
         return False
     except selenium.common.exceptions.NoSuchElementException:
         pass

@@ -18,7 +18,7 @@ def endOfListings(browser):
     except selenium.common.exceptions.NoSuchElementException:
         return False
 
-def find_listings(browser, price_limit, city):
+def find_listings(browser, prices, city):
     # base_url = "https://www.facebook.com/marketplace"
     # url = f"{base_url}/{city}/search?query=rentals&exact=false"
 
@@ -26,11 +26,11 @@ def find_listings(browser, price_limit, city):
     browser.get(url)
 
     min_input = utils.wait_for(browser, (By.XPATH, "//input[@placeholder='Min']"))
-    min_input.send_keys('500')
+    min_input.send_keys(str(prices[0]))
     min_input.send_keys(Keys.ENTER)
 
     max_input = utils.wait_for(browser, (By.XPATH, "//input[@placeholder='Max']"))
-    max_input.send_keys(str(price_limit))
+    max_input.send_keys(str(prices[1]))
     max_input.send_keys(Keys.ENTER)
 
     # Regex pattern to identify price-like strings
