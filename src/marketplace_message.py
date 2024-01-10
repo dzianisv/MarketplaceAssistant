@@ -51,7 +51,12 @@ def _send_message(browser, listing_url, message):
     except selenium.common.exceptions.NoSuchElementException:
         pass
 
-    return True
+    try: 
+        browser.find_element(By.XPATH, "//*[contains(text(), 'Your account is restricted right now')]")
+        logger.warning("[%s] Failed to sena a message, account is restricted", listing_url)
+        return False
+    except selenium.common.exceptions.NoSuchElementException:
+        pass
 
 def send_message(browser, listing_url, message):
     try:
