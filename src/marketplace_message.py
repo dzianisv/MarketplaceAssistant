@@ -57,6 +57,8 @@ def _send_message(browser, listing_url, message):
     except selenium.common.exceptions.NoSuchElementException:
         pass
 
+    return True
+
 def send_message(browser, listing_url, message):
     try:
         return _send_message(browser, listing_url, message)

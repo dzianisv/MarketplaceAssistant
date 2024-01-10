@@ -64,7 +64,7 @@ def find_listings(browser, prices, city):
                 else:
                     price = float(price_str)
 
-                if price <= price_limit:
+                if price >= prices[0] and price <= prices[1]:
                     affordable_listings.add(listing_link)
                     logger.debug("Added listing %f %s", price, listing_link)
 
