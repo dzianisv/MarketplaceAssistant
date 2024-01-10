@@ -13,9 +13,9 @@ logger = config.get_logger(__name__)
 
 def _send_message(browser, listing_url, message):
     browser.get(listing_url)
-    logger.info("Listing: %s", listing_url)
 
     try:   
+        logger.info("[%s] Waiting for `Message` button load", listing_url)
         element = utils.wait_for(browser, (By.XPATH, "//span[text()='Message Again']"), (By.XPATH, "//span[text()='Message']"))
         if 'Message Again' in element.get_attribute('innerHTML'):
             logger.info("[%s] ✉️ `Message Again` button is located. It means we already sent message to the owner of this ad", listing_url)

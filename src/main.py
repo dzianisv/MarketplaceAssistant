@@ -68,8 +68,9 @@ def find_and_message(browser):
             pickle.dump(listings, open("listings.cache.pkl", "wb"))
 
         timeouts = 0
-
-        for listing in listings:
+        for i in range(len(listings)):
+            listing = listings[i]
+            
             for retry_i in range(3):
                 try:
                     if not send_message(browser, listing, config.MESSAGE):
@@ -80,6 +81,8 @@ def find_and_message(browser):
                     timeouts += 1
                     logger.error("timed out on %s", listing)
                     continue
+            # dump current state to start from a failed one next time
+            pickle.dump(listings[i:], open("listings.cache.pkl", "wb"))
 
         os.unlink("listings.cache.pkl")
         logger.info("Done, timeouts: %d", timeouts)
