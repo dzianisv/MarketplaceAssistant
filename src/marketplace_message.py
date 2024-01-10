@@ -11,18 +11,19 @@ import datetime
 
 logger = config.get_logger(__name__)
 
-
-
-def send_message(browser, listing_url, message):
+def _send_message(browser, listing_url, message):
     browser.get(listing_url)
     logger.info("Listing: %s", listing_url)
 
-    element = utils.wait_for(browser, (By.XPATH, "//span[text()='Message Again']"), (By.XPATH, "//span[text()='Message']"))
-    if 'Message Again' in element.get_attribute('innerHTML'):
-        logger.info("✉️ `Message Again` button is located. It means we already sent message to the owner of this ad")
-        return True
-    else:
-        ActionChains(browser).move_to_element(element).click().perform()
+    try:   
+        element = utils.wait_for(browser, (By.XPATH, "//span[text()='Message Again']"), (By.XPATH, "//span[text()='Message']"))
+        if 'Message Again' in element.get_attribute('innerHTML'):
+            logger.info("[%s] ✉️ `Message Again` button is located. It means we already sent message to the owner of this ad", listing_url)
+            return True
+        else:
+            ActionChains(browser).move_to_element(element).click().perform()
+    except selenium.common.exceptions.TimeoutException:
+        logger.warning("[%s] Failed to find `Message` or `Message again` button. Ad is not available?", listing_url)
     
     # type in message
     element = WebDriverWait(browser, 20).until(
@@ -34,7 +35,6 @@ def send_message(browser, listing_url, message):
     element.send_keys(message)
     # ActionChains(browser).scroll_to_element(element).click(element).send_keys(message).perform()
 
-
     # click "Send message" button
     element = browser.find_element(By.XPATH, "//span[text()='Send message']") 
     element.click()
@@ -42,13 +42,20 @@ def send_message(browser, listing_url, message):
     # wait for a message delivery
     sleep(10)
     browser.save_full_page_screenshot(f"message-{datetime.datetime.now().isoformat()}.png")
-    logger.info("📤 Message sent")
+    logger.info("[%s] 📤 Message sent", listing_url)
 
     try:
         browser.find_element(By.XPATH, "//*[contains(text(), 'Something goes wrong')]")
-        logger.warning("Failed to sena a message, probably we are blocked")
+        logger.warning("[%s] Failed to sena a message, probably we are blocked", listing_url)
         return False
     except selenium.common.exceptions.NoSuchElementException:
         pass
 
     return True
+
+def send_message(browser, listing_url, message):
+    try:
+        return _send_message(browser, listing_url, message)
+    except selenium.common.exceptions.MoveTargetOutOfBoundsException as e:
+        logger.warning("[%s] Failed to send message because controls are not available (MoveTargetOutOfBoundsExceptio): %s", listing_url, e)
+        return True

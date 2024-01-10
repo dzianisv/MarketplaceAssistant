@@ -67,6 +67,8 @@ def find_and_message(browser):
             listings = find_listings(browser, price_limit, "")
             pickle.dump(listings, open("listings.cache.pkl", "wb"))
 
+        timeouts = 0
+
         for listing in listings:
             for retry_i in range(3):
                 try:
@@ -75,10 +77,12 @@ def find_and_message(browser):
                         return False
                     break  # end retries loop
                 except selenium.common.exceptions.TimeoutException:
+                    timeouts += 1
                     logger.error("timed out on %s", listing)
                     continue
 
         os.unlink("listings.cache.pkl")
+        logger.info("Done, timeouts: %d", timeouts)
     finally:
         # Quit the browser after completing the tasks
         # browser.quit()
