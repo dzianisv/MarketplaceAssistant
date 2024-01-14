@@ -65,29 +65,24 @@ def _send_message(browser, listing_url, message):
         return False
     except selenium.common.exceptions.NoSuchElementException:
         pass
+    
+    for s in [
+        '//*[contains(text(), "You Can\'t Use This Feature Right Now")]',
+        '//*[contains(text(), "You\'ve Reached Your Limit")]'
+        "//*[contains(text(), 'Your account is restricted right now')]"]:
 
-    try:
-        browser.find_element(
-            By.XPATH, "//*[contains(text(), 'Your account is restricted right now')]"
-        )
-        logger.warning(
-            '[%s] Failed to sena a message, "Your account is restricted right now"',
-            listing_url,
-        )
-        return False
-    except selenium.common.exceptions.NoSuchElementException:
-        pass
-
-    try:
-        browser.find_element(
-            By.XPATH, '//*[contains(text(), "You\'ve Reached Your Limit")]'
-        )
-        logger.warning(
-            '[%s] Failed to sena a message, "You\'ve Reached Your Limit"', listing_url
-        )
-        return False
-    except selenium.common.exceptions.NoSuchElementException:
-        pass
+        try:
+            browser.find_element(
+                By.XPATH, 
+                s
+            )
+            logger.warning(
+                '[%s] Failed to send a message, "Your account is restricted right now"',
+                listing_url,
+            )
+            return False
+        except selenium.common.exceptions.NoSuchElementException:
+            pass
 
     return True
 
