@@ -13,6 +13,7 @@ import pickle
 import config
 import random
 import enum
+import hashlib
 
 logger = config.get_logger(__name__)
 
@@ -43,8 +44,10 @@ class Browsers(enum.Enum):
 def main():
     # Initialize the browse
     browser_type = Browsers.CHROME
-    profile_path = ".FacebookAssistantState." + browser_type.name
-    
+
+    m = hashlib.sha1() 
+    m.update(config.EMAIL.encode("utf-8"))
+    profile_path = ".profile." + m.hexdigest() + "." + browser_type.name
 
     if browser_type == Browsers.FIREFOX:
         options = selenium.webdriver.firefox.options.Options()
