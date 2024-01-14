@@ -14,6 +14,7 @@ import config
 import random
 import enum
 import hashlib
+import argparse
 
 logger = config.get_logger(__name__)
 
@@ -42,6 +43,11 @@ class Browsers(enum.Enum):
     CHROME = 2
 
 def main():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--enable-cache", action='store_true', help="enable listing caching")
+    args = parser.parse_args()
+
     # Initialize the browse
     browser_type = Browsers.CHROME
 
@@ -59,7 +65,7 @@ def main():
         options.add_argument("--user-data-dir=" + profile_path)
         browser = webdriver.Chrome(options=options)
         
-    find_and_message(browser)
+    find_and_message(browser, args)
 
 
 def test(browser):
@@ -70,7 +76,7 @@ def test(browser):
     )
 
 
-def find_and_message(browser):
+def find_and_message(browser, args):
     try:
         # Login to Facebook
         login_to_facebook(browser, config.EMAIL, config.PASSWORD)
@@ -78,7 +84,7 @@ def find_and_message(browser):
         # Parameters for searching and messaging
         # seattle, miami, sanjuan
         prices = (800, 1500)
-        if os.path.exists("listings.cache.pkl"):
+        if args.enable_cache and os.path.exists("listings.cache.pkl"):
             listings = pickle.load(open("listings.cache.pkl", "rb"))
         else:
             listings = find_listings(browser, prices, "")
