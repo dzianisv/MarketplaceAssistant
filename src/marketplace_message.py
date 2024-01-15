@@ -67,8 +67,8 @@ def _send_message(browser, listing_url, message):
         pass
     
     for s in [
-        '//*[contains(text(), "You Can\'t Use This Feature Right Now")]',
-        '//*[contains(text(), "You\'ve Reached Your Limit")]'
+        "//*[contains(text(), 'Use This Feature Right Now')]",
+        "//*[contains(text(), 'Reached Your Limit')]",
         "//*[contains(text(), 'Your account is restricted right now')]"]:
 
         try:
@@ -82,7 +82,7 @@ def _send_message(browser, listing_url, message):
             )
             return False
         except selenium.common.exceptions.NoSuchElementException:
-            pass
+            continue
 
     return True
 
