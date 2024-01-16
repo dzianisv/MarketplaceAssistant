@@ -43,8 +43,8 @@ class Browsers(enum.Enum):
     CHROME = 2
 
 def main():
-
     parser = argparse.ArgumentParser()
+    parser.add_argument("--listings", default=None, type=str, help="path to the listings file. Listings file contains url of ad listings that will be used")
     parser.add_argument("--enable-cache", action='store_true', help="enable listing caching")
     args = parser.parse_args()
 
@@ -84,7 +84,11 @@ def find_and_message(browser, args):
         # Parameters for searching and messaging
         # seattle, miami, sanjuan
         prices = (800, 1500)
-        if args.enable_cache and os.path.exists("listings.cache.pkl"):
+        if args.listings:
+            with open(args.listings, "r", encoding='utf8') as f:
+                logger.info("reading URLs from %s", args.listings)
+                listings = f.read().splitlines()
+        elif args.enable_cache and os.path.exists("listings.cache.pkl"):
             listings = pickle.load(open("listings.cache.pkl", "rb"))
         else:
             listings = find_listings(browser, prices, "")
