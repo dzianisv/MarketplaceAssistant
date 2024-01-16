@@ -19,21 +19,34 @@ from llm import LLM
 
 logger = config.get_logger(__name__)
 
+
 def llm_improve_message(message):
     messages = [
         {
             "role": "system",
             "content": f"You are professional socia media marketer and writer",
-        }, 
-        {
-            "role": "user",
-            "content": message
-        }
+        },
+        {"role": "user", "content": message},
     ]
 
     # chatgpt insers ``` as in the original message, ignore it`
-    response = LLM().get_response(messages).replace('```', '')
+    response = LLM().get_response(messages).replace("```", "")
     return response
+
+
+def get_messages(args):
+    if args.llm_message:
+        with open(args.llm_message, "r", encoding="utf8") as f:
+            query = f.read()
+
+        while True:
+            yield llm_improve_message(query)
+    else:
+        with open(args.messages, "r", encoding="utf8") as f:
+            messages = f.read().split("---\n")
+
+        while True:
+            yield random.choice(messages)
 
 def login_to_facebook(browser, email, password):
     browser.get("https://www.facebook.com/")
@@ -54,23 +67,41 @@ def login_to_facebook(browser, email, password):
     logger.debug("waiting for `Marketplace` menu item")
     utils.wait_for(browser, (By.XPATH, "//span[text()='Marketplace']"))
 
+
 class Browsers(enum.Enum):
     FIREFOX = 0
     CHROME = 2
 
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--listings", default=None, type=str, help="path to the listings file. Listings file contains url of ad listings that will be used")
-    parser.add_argument("--enable-cache", action='store_true', help="enable listing caching")
-    parser.add_argument("--llm-message", default="messages.txt", type=str, help="use the LLM (gpt-3.5) to generate a unique message")
-    parser.add_arugment("--messages", type=str, help="use a text file with messages separated by ---\\n")
-    
+    parser.add_argument(
+        "--listings",
+        default=None,
+        type=str,
+        help="path to the listings file. Listings file contains url of ad listings that will be used",
+    )
+    parser.add_argument(
+        "--enable-cache", action="store_true", help="enable listing caching"
+    )
+    parser.add_argument(
+        "--llm-message",
+        type=str,
+        help="use the LLM (gpt-3.5) to generate a unique message",
+    )
+    parser.add_argument(
+        "--messages",
+        type=str,
+        default="messages.txt",
+        help="use a text file with messages separated by ---\\n",
+    )
+
     args = parser.parse_args()
 
     # Initialize the browse
     browser_type = Browsers.CHROME
 
-    m = hashlib.sha1() 
+    m = hashlib.sha1()
     m.update(config.EMAIL.encode("utf-8"))
     profile_path = ".profile." + m.hexdigest() + "." + browser_type.name
 
@@ -83,7 +114,7 @@ def main():
         options = selenium.webdriver.chrome.options.Options()
         options.add_argument("--user-data-dir=" + profile_path)
         browser = webdriver.Chrome(options=options)
-        
+
     find_and_message(browser, args)
 
 
@@ -104,7 +135,7 @@ def find_and_message(browser, args):
         # seattle, miami, sanjuan
         prices = (800, 1500)
         if args.listings:
-            with open(args.listings, "r", encoding='utf8') as f:
+            with open(args.listings, "r", encoding="utf8") as f:
                 logger.info("reading URLs from %s", args.listings)
                 listings = f.read().splitlines()
         elif args.enable_cache and os.path.exists("listings.cache.pkl"):
@@ -113,6 +144,8 @@ def find_and_message(browser, args):
             listings = find_listings(browser, prices, "")
             pickle.dump(listings, open("listings.cache.pkl", "wb"))
 
+        messages = get_messages(args)
+
         timeouts = 0
         for i in range(len(listings)):
             if i > config.MESSAGES_LIMIT:
@@ -120,17 +153,10 @@ def find_and_message(browser, args):
                 break
 
             listing = listings[i]
-            
+
             for retry_i in range(3):
                 try:
-                    if args.llm_message:
-                        with open(args.llm_message, "r", encoding='utf8') as f:
-                            message = llm_improve_message(f.read())
-                    else:
-                        with open(args.messages, "r", encoding='utf8') as f:
-                            message = random.choice(f.read().split("---\n"))
-
-                    if not send_message(browser, listing, message):
+                    if not send_message(browser, listing, next(messages)):
                         logger.error("Failed to send a message")
                         return False
                     break  # end retries loop
