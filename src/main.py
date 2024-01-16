@@ -15,9 +15,25 @@ import random
 import enum
 import hashlib
 import argparse
+from llm import LLM
 
 logger = config.get_logger(__name__)
 
+def llm_improve_message(message):
+    messages = [
+        {
+            "role": "system",
+            "content": f"You are professional socia media marketer and writer",
+        }, 
+        {
+            "role": "user",
+            "content": f"rewrite the message in triple backtricks to make it more personal and relevant to the listing. Provide English and Spanish variants\n```{message}```"
+        }
+    ]
+
+    # chatgpt insers ``` as in the original message, ignore it`
+    response = LLM().get_response(messages).replace('```', '')
+    return response
 
 def login_to_facebook(browser, email, password):
     browser.get("https://www.facebook.com/")
@@ -46,6 +62,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--listings", default=None, type=str, help="path to the listings file. Listings file contains url of ad listings that will be used")
     parser.add_argument("--enable-cache", action='store_true', help="enable listing caching")
+    parser.add_argument("--llm-improve-message", action='store_true', help="enable listing caching")
+    
     args = parser.parse_args()
 
     # Initialize the browse
@@ -104,7 +122,12 @@ def find_and_message(browser, args):
             
             for retry_i in range(3):
                 try:
-                    if not send_message(browser, listing, random.choice(config.MESSAGES)):
+                    if args.llm_improve_message:
+                        message = llm_improve_message(config.MESSAGES[0])
+                    else:
+                        message = random.choice(config.MESSAGES)
+
+                    if not send_message(browser, listing, message):
                         logger.error("Failed to send a message")
                         return False
                     break  # end retries loop
