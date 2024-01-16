@@ -27,7 +27,7 @@ def llm_improve_message(message):
         }, 
         {
             "role": "user",
-            "content": f"rewrite the message in triple backtricks to make it more personal and relevant to the listing. Provide English and Spanish variants\n```{message}```"
+            "content": message
         }
     ]
 
@@ -62,7 +62,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--listings", default=None, type=str, help="path to the listings file. Listings file contains url of ad listings that will be used")
     parser.add_argument("--enable-cache", action='store_true', help="enable listing caching")
-    parser.add_argument("--llm-improve-message", action='store_true', help="enable listing caching")
+    parser.add_argument("--llm-message", default="messages.txt", type=str, help="use the LLM (gpt-3.5) to generate a unique message")
+    parser.add_arugment("--messages", type=str, help="use a text file with messages separated by ---\\n")
     
     args = parser.parse_args()
 
@@ -122,10 +123,12 @@ def find_and_message(browser, args):
             
             for retry_i in range(3):
                 try:
-                    if args.llm_improve_message:
-                        message = llm_improve_message(config.MESSAGES[0])
+                    if args.llm_message:
+                        with open(args.llm_message, "r", encoding='utf8') as f:
+                            message = llm_improve_message(f.read())
                     else:
-                        message = random.choice(config.MESSAGES)
+                        with open(args.messages, "r", encoding='utf8') as f:
+                            message = random.choice(f.read().split("---\n"))
 
                     if not send_message(browser, listing, message):
                         logger.error("Failed to send a message")

@@ -9,9 +9,6 @@ def get_logger(name: str):
     logger.setLevel(logging.DEBUG)
     return logger
 
-with open("message.txt", "r", encoding='utf8') as m:
-    MESSAGES = m.read().split('---\n')
-
 EMAIL = os.environ.get('EMAIL')
 PASSWORD = os.environ.get('PASSWORD')
 MESSAGES_LIMIT=50
