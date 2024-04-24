@@ -1,3 +1,6 @@
+## Intro
+Automates Facebook Marketplace mailing. Useful when I look for subleases in a new city to support my digital nomad lifestyle.
+
 ## Requirements
 ```
 brew install python
